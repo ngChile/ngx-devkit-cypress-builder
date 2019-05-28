@@ -1,0 +1,35 @@
+{
+  "name": "ngx-devkit-cypress-builder",
+  "version": "1.0.0",
+  "description": "Builder for running Cypress in an Angular Architecture.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gpincheiraa/ngx-devkit-cypress-builder"
+  },
+  "main": "src/index.js",
+  "typings": "src/index.d.ts",
+  "builders": "builders.json",
+  "scripts": {
+    "test": "jest",
+    "tsc": "tsc",
+    "build": "npm run tsc"
+  },
+  "dependencies": {
+    "@angular-devkit/architect": "^0.800.0-rc.4",
+    "@angular-devkit/core": "^8.0.0-rc.4",
+    "@angular-devkit/schematics": "^8.0.0-rc.4",
+    "cypress": "^3.0.0"
+  },
+  "peerDependencies": {
+    "rxjs": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.11",
+    "@types/node": "^10.3.2",
+    "cpr": "^3.0.1",
+    "jest": "^24.7.1",
+    "ts-jest": "^24.0.2",
+    "typescript": "^2.9.1"
+  }
+}

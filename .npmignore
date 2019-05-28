@@ -1,0 +1,4 @@
+*.ts
+*.spec.js
+.travis.yml
+jest.config.js
