@@ -16,9 +16,9 @@
     "build": "npm run tsc"
   },
   "dependencies": {
-    "@angular-devkit/architect": "^0.800.0-rc.4",
-    "@angular-devkit/core": "^8.0.0-rc.4",
-    "@angular-devkit/schematics": "^8.0.0-rc.4",
+    "@angular-devkit/architect": "^0.800.0",
+    "@angular-devkit/core": "^8.0.0",
+    "@angular-devkit/schematics": "^8.0.0",
     "cypress": "^3.0.0"
   },
   "peerDependencies": {
