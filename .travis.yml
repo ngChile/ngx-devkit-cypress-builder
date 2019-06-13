@@ -17,7 +17,7 @@ stages:
 jobs:
   include:
     - stage: unit-tests
-      script: npm test
+      script: npm test -- --coverage
 before_deploy:
   - npm run build
 deploy:
