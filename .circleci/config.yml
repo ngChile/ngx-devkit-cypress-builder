@@ -87,7 +87,7 @@ jobs:
       - <<: *restore_dist
       - run:
           name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$gi" > ~/lib/.npmrc
+          command: echo "//registry.npmjs.org/:_authToken=$AUTH_TOKEN" > ~/lib/.npmrc
       - run:
           name: Publish package
           command: npm publish
