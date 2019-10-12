@@ -29,7 +29,7 @@ aliases:
       keys:
         - v1-dist-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
 
-    install_node_modules: &install_node_modules
+  install_node_modules: &install_node_modules
     run:
       name: Install local dependencies
       command: npm ci
