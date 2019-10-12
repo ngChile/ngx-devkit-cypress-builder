@@ -1,7 +1,7 @@
 import { Architect, BuilderContext } from '@angular-devkit/architect';
 import { scheduleTargetAndForget, targetFromTargetString } from '@angular-devkit/architect/src/api';
 import { TestingArchitectHost } from '@angular-devkit/architect/testing/';
-import { schema, logging } from '@angular-devkit/core';
+import { schema } from '@angular-devkit/core';
 import { normalize } from 'path';
 import { of } from 'rxjs';
 import { CypressBuilderOptions } from './cypress-runner';
@@ -13,7 +13,7 @@ jest.mock('cypress', () => ({
     open: jest.fn(),
 }));
 
-describe('Ngx Devkit Cypress Builder', () => {
+describe('Integration Test: Ngx Devkit Cypress Builder', () => {
     let architect: Architect;
     let architectHost: TestingArchitectHost;
     
@@ -58,6 +58,8 @@ describe('Ngx Devkit Cypress Builder', () => {
 
         // Expectations
         expect(output.success).toBe(true);
+        // TODO: make mock verifications over cypress mock. 
+        // see this example of integration test of mock verification
         // expect(targetFromTargetString).toHaveBeenCalledWith(stubbyOptions.devServerTarget);
         // expect(stubbyStartMock).toHaveBeenCalledWith({
         //     ...stubbyOptions,

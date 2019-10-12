@@ -1,6 +1,6 @@
 {
   "name": "ngx-devkit-cypress-builder",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Builder for running Cypress in an Angular Architecture.",
   "license": "MIT",
   "repository": {
@@ -12,14 +12,19 @@
   "builders": "builders.json",
   "scripts": {
     "test": "jest",
+    "test:ci": "jest --ci --reporters=default --reporters=jest-junit",
     "tsc": "tsc",
     "build": "npm run tsc"
+  },
+  "jest-junit":{
+    "outputDirectory": "./test-results/junit",
+    "outputName": "results.xml"
   },
   "dependencies": {
     "@angular-devkit/architect": "^0.800.0",
     "@angular-devkit/core": "^8.0.0",
     "@angular-devkit/schematics": "^8.0.0",
-    "cypress": "^3.0.0"
+    "cypress": "^3.4.1"
   },
   "peerDependencies": {
     "rxjs": "^6.0.0"
@@ -29,6 +34,7 @@
     "@types/node": "^10.3.2",
     "cpr": "^3.0.1",
     "jest": "^24.7.1",
+    "jest-junit": "^8.0.0",
     "ts-jest": "^24.0.2",
     "typescript": "^2.9.1"
   }

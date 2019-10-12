@@ -1,0 +1,31 @@
+dist: trusty
+language: node_js
+node_js:
+  - 10
+services:
+  - docker
+cache:
+  npm: true
+  directories:
+    - ~/.cache
+before_script:
+  - npm install -g @angular/cli
+install:
+  - npm ci
+stages:
+  - name: unit-tests
+jobs:
+  include:
+    - stage: unit-tests
+      script: npm test -- --coverage
+before_deploy:
+  - npm run build
+deploy:
+  skip_cleanup: true
+  provider: npm
+  email: "$EMAIL_ADDRESS"
+  api_key: 
+    - secure: "$AUTH_TOKEN"
+  on:
+    branch: master
+    tags: true

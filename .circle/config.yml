@@ -1,0 +1,123 @@
+version: 2.1
+orbs:
+  codecov: codecov/codecov@1.0.5
+aliases:
+  restore_cache: &restore_cache
+    restore_cache:
+      name: Restore Npm Package Cache
+      keys:
+        - v1-dependencies-{{ checksum "package.json" }}
+
+  install_node_modules: &install_node_modules
+    run:
+      name: Install local dependencies
+      command: npm ci
+
+  show_current_branch: &show_current_branch
+    run:
+      name: Show current branch
+      command: echo ${CIRCLE_BRANCH}
+
+  store_dist: &store_dist
+    save_cache:
+      name: Save dist folder
+      paths:
+        - ./
+      key: v1-dist-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
+  
+  restore_dist: &restore_dist
+    restore_cache:
+      name: Restore built dist folder
+      keys:
+        - v1-dist-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
+jobs:
+  unit-tests:
+    docker:
+      - image: circleci/node:10
+    working_directory: ~/lib
+    steps:
+      - checkout
+      - <<: *show_current_branch
+      - <<: *restore_cache
+      - <<: *install_node_modules
+      - <<: *save_cache
+      - run:
+          name: Running unit tests
+          command: npm run test:ci
+      - codecov/upload:
+          file: ./coverage/lcov.info
+      - store_artifacts:
+          path: ./test-results/junit
+      - store_artifacts:
+          path: ./coverage
+      - store_test_results:
+          path: ./test-results
+
+  build:
+    docker:
+      - image: circleci/node:10
+    working_directory: ~/lib
+    steps:
+      - checkout
+      - <<: *show_current_branch
+      - <<: *restore_cache
+      - <<: *install_node_modules
+      - <<: *save_cache
+      - run:
+          name: Building artifact using ng build
+          command: npm run build
+      - <<: *store_dist
+  
+  publish:
+    docker:
+      - image: circleci/node:10
+    working_directory: ~/lib
+    steps:
+      - checkout
+      - <<: *show_current_branch
+      - <<: *restore_dist
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$AUTH_TOKEN" > ~/lib/.npmrc
+      - run:
+          name: Publish package
+          command: npm publish
+
+workflows:
+  version: 2
+  angular-chile-pipeline:
+    jobs:
+      - unit-tests
+      - publish
+
+dist: trusty
+language: node_js
+node_js:
+  - 10
+services:
+  - docker
+cache:
+  npm: true
+  directories:
+    - ~/.cache
+before_script:
+  - npm install -g @angular/cli
+install:
+  - npm ci
+stages:
+  - name: unit-tests
+jobs:
+  include:
+    - stage: unit-tests
+      script: npm test -- --coverage
+before_deploy:
+  - npm run build
+deploy:
+  skip_cleanup: true
+  provider: npm
+  email: "$EMAIL_ADDRESS"
+  api_key: 
+    - secure: "$AUTH_TOKEN"
+  on:
+    branch: master
+    tags: true
