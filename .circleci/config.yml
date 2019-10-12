@@ -97,5 +97,17 @@ workflows:
   angular-chile-pipeline:
     jobs:
       - unit-tests
-      - build
-      - publish
+      - build:
+          requires:
+            - unit-tests
+          filters:
+            branches:
+              only:
+                - master
+      - publish:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
