@@ -1,16 +1,20 @@
 import { JsonObject } from '@angular-devkit/core';
-import { createBuilder } from '@angular-devkit/architect/src/create-builder';
-import { scheduleTargetAndForget, targetFromTargetString } from '@angular-devkit/architect/src/api';
-import { BuilderContext, BuilderOutput } from '@angular-devkit/architect';
-import { Observable, of, noop, Subscriber } from 'rxjs';
+import {
+    BuilderContext,
+    BuilderOutput,
+    createBuilder,
+    scheduleTargetAndForget,
+    targetFromTargetString
+} from '@angular-devkit/architect';
+import { Observable, of, noop } from 'rxjs';
 import { fromPromise } from 'rxjs/internal-compatibility';
 import { concatMap, map, take, tap, catchError } from 'rxjs/operators';
 
-const cypress = require("cypress");
+const cypress = require('cypress');
 
 export enum CypressRunningMode {
-    Console = "console",
-    Browser = "browser"
+    Console = 'console',
+    Browser = 'browser'
 }
 
 export interface CypressBuilderOptions extends JsonObject {
@@ -19,7 +23,7 @@ export interface CypressBuilderOptions extends JsonObject {
     baseUrl?: string;
     host?: string;
     ciBuildId?: string;
-    // env?: object;
+    env?: Record<string, string>;
     group?: string;
     key?: string;
     parallel?: boolean;
@@ -37,11 +41,20 @@ function run(
     options: CypressBuilderOptions,
     context: BuilderContext
 ): Observable<BuilderOutput> {
+    const isConsoleMode = options.mode === CypressRunningMode.Console;
     return of(null)
         .pipe(
-            concatMap(() => startDevServer(options.devServerTarget, true, context)),
-            concatMap(() => executeCypress(options, context)),
-            options.mode === CypressRunningMode.Console? take(1) : tap(noop),
+            concatMap(() => 
+              startDevServer(options.devServerTarget, true, context)
+            ),
+            concatMap(({ success }) =>
+              isConsoleMode && !success
+                ? of({ success })
+                : executeCypress(options, context)
+            ),
+            isConsoleMode
+              ? take(1) 
+              : tap(noop),
             catchError(error => {
               context.reportStatus(`Error: ${error.message}`);
               context.logger.error(error.message);
@@ -50,7 +63,7 @@ function run(
               });
             })
         );
-}
+};
 
 function startDevServer(
     devServerTarget: string,
@@ -84,11 +97,13 @@ function executeCypress(
         ...(options.project ? { project: options.project } : {}),
         ...(options.record ? { record: options.record } : {}),
         ...(options.reporter ? { reporter: options.reporter } : {}),
-        ...(options.reporterPath ? { reporter: options.reporterPath } : {}),
         ...(options.spec ? { spec: options.spec } : {})
     };
+
     return fromPromise<any>(
-        options.mode === CypressRunningMode.Console ? cypress.run(additionalCypressConfig) : cypress.open(additionalCypressConfig)
+        options.mode === CypressRunningMode.Console
+          ? cypress.run(additionalCypressConfig) 
+          : cypress.open(additionalCypressConfig)
       ).pipe(
         map(result => ({
           /**

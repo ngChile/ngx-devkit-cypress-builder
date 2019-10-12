@@ -31,7 +31,7 @@
     },
     "env": {
       "type": "object",
-      "description": "Environment variable"
+      "description": "Environment variables"
     },
     "group": {
       "type": "string",
@@ -45,10 +45,6 @@
       "type": "boolean",
       "description": "Run recorded specs in parallel across multiple machines"
     },
-    "port": {
-      "type": "number",
-      "description": "The port to use to serve the application."
-    },
     "project": {
       "type": "string",
       "description": "Path to a specific project"
@@ -59,11 +55,7 @@
     },
     "reporter": {
       "type": "string",
-      "description": "Specify a Mocha reporter"
-    },
-    "reporterPath": {
-      "type": "string",
-      "description": "Relative path to the reporter based the project root"
+      "description": "Specify a Mocha reporter or path to custom reporter"
     },
     "spec": {
       "type": "string",
