@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/gpincheiraa/ngx-devkit-cypress-builder"
+    "url": "https://github.com/ngChile/ngx-devkit-cypress-builder"
   },
   "main": "src/index.js",
   "typings": "src/index.d.ts",
