@@ -1,6 +1,6 @@
 {
   "name": "ngx-devkit-cypress-builder",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Builder for running Cypress in an Angular Architecture.",
   "license": "MIT",
   "repository": {
