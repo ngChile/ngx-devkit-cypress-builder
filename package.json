@@ -21,7 +21,7 @@
     "outputName": "results.xml"
   },
   "dependencies": {
-    "@angular-devkit/architect": "^0.800.0",
+    "@angular-devkit/architect": "^0.803.9",
     "@angular-devkit/core": "^8.3.0",
     "@angular-devkit/schematics": "^8.3.0",
     "cypress": "^3.4.1"
@@ -31,11 +31,11 @@
   },
   "devDependencies": {
     "@types/jest": "^24.0.11",
-    "@types/node": "^10.3.2",
+    "@types/node": "^12.7.12",
     "cpr": "^3.0.1",
     "jest": "^24.7.1",
     "jest-junit": "^8.0.0",
     "ts-jest": "^24.0.2",
-    "typescript": ">=3.4.0 <3.6.0"
+    "typescript": ">=3.6.4"
   }
 }
