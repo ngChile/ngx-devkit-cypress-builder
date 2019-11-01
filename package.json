@@ -23,7 +23,7 @@
   "dependencies": {
     "@angular-devkit/architect": "^0.803.10",
     "@angular-devkit/core": "^8.3.0",
-    "@angular-devkit/schematics": "^8.3.10",
+    "@angular-devkit/schematics": "^8.3.14",
     "cypress": "^3.4.1"
   },
   "peerDependencies": {
