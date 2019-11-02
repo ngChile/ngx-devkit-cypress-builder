@@ -21,7 +21,7 @@
     "outputName": "results.xml"
   },
   "dependencies": {
-    "@angular-devkit/architect": "^0.803.12",
+    "@angular-devkit/architect": "^0.803.14",
     "@angular-devkit/core": "^8.3.14",
     "@angular-devkit/schematics": "^8.3.14",
     "cypress": "^3.5.0"
