@@ -41,25 +41,23 @@ function run(
     context: BuilderContext
 ): Observable<BuilderOutput> {
     const isConsoleMode = options.mode === CypressRunningMode.Console;
-    
+
     return (options.devServerTarget
         ? startDevServer(options.devServerTarget, true, context)
         : of({ success: true })
     ).pipe(
         concatMap(({ success }) =>
             isConsoleMode && !success
-            ? of({ success })
-            : executeCypress(options, context)
+                ? of({ success })
+                : executeCypress(options, context)
         ),
         isConsoleMode
-            ? take(1) 
+            ? take(1)
             : tap(noop),
         catchError(error => {
             context.reportStatus(`Error: ${error.message}`);
             context.logger.error(error.message);
-            return of({
-            success: false
-            });
+            return of({ success: false });
         })
     );
 };
@@ -68,15 +66,15 @@ function startDevServer(
     devServerTarget: string,
     isWatching: boolean,
     context: BuilderContext
-  ): Observable<BuilderOutput> {
+): Observable<BuilderOutput> {
     // Overrides dev server watch setting.
     const overrides = {
-      watch: isWatching
+        watch: isWatching
     };
     return scheduleTargetAndForget(
-      context,
-      targetFromTargetString(devServerTarget),
-      overrides
+        context,
+        targetFromTargetString(devServerTarget),
+        overrides
     );
 }
 
@@ -86,9 +84,10 @@ function executeCypress(
 ): Observable<BuilderOutput> {
     const additionalCypressConfig = {
         config: {
-          baseUrl: options.baseUrl
+            baseUrl: options.baseUrl
         },
         ...(options.ciBuildId ? { ciBuildId: options.ciBuildId } : {}),
+        ...(options.configFile ? { configFile: options.configFile } : {}),
         ...(options.env ? { env: options.env } : {}),
         ...(options.group ? { group: options.group } : {}),
         ...(options.key ? { key: options.key } : {}),
@@ -101,19 +100,19 @@ function executeCypress(
 
     return from<any>(
         options.mode === CypressRunningMode.Console
-          ? cypress.run(additionalCypressConfig) 
-          : cypress.open(additionalCypressConfig)
-      ).pipe(
-        map((result:any) => ({
-          /**
-           * `cypress.open` is returning `0` and is not of the same type as `cypress.run`.
-           * `cypress.open` is the graphical UI, so it will be obvious to know what wasn't
-           * working. Forcing the build to success when `cypress.open` is used.
-           */
-          success: result.hasOwnProperty(`totalFailed`)
-            ? result.totalFailed === 0
-            : true
+            ? cypress.run(additionalCypressConfig)
+            : cypress.open(additionalCypressConfig)
+    ).pipe(
+        map((result: any) => ({
+            /**
+             * `cypress.open` is returning `0` and is not of the same type as `cypress.run`.
+             * `cypress.open` is the graphical UI, so it will be obvious to know what wasn't
+             * working. Forcing the build to success when `cypress.open` is used.
+             */
+            success: result.hasOwnProperty(`totalFailed`)
+                ? result.totalFailed === 0
+                : true
         }))
-      );
+    );
 }
 

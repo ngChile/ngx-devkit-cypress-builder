@@ -175,6 +175,7 @@ describe('Integration Test: Ngx Devkit Cypress Builder', () => {
         const cypressNewOptions = {
             ...cypressOptions,
             ciBuildId: 'cypress-builder',
+            configFile: 'e2e/cypress.json',
             mode: 'browser',
             parallel: true,
             record: true,
