@@ -29,6 +29,10 @@
       "type": "string",
       "description": "Specify a unique identifier for a run to enable grouping or parallelization"
     },
+    "configFile": {
+      "type": "string",
+      "description": "Path to the config file to be used. If false is passed, no config file will be used"
+    },
     "env": {
       "type": "object",
       "description": "Environment variables"
