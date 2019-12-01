@@ -7,9 +7,8 @@
     "type": "git",
     "url": "https://github.com/ngChile/ngx-devkit-cypress-builder"
   },
-  "main": "src/index.js",
-  "typings": "src/index.d.ts",
-  "builders": "builders.json",
+  "main": "src/cypress/index.js",
+  "builders": "src/builders/builders.json",
   "scripts": {
     "test": "jest --coverage --watch",
     "test:ci": "jest --ci --reporters=default --reporters=jest-junit --coverage",

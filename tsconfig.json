@@ -26,7 +26,8 @@
     "packages/schematics/*/*/*files/**/*",
     "tmp/**/*",
     "scripts/patches/**/*",
-    "test/**/*"
+    "test/**/*",
+    "src/**/*.spec.ts"
   ],
   "angularCompilerOptions": {
     "strictMetadataEmit": true,

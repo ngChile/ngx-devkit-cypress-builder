@@ -1,9 +1,0 @@
-{
-    "builders": {
-      "cypress": {
-        "implementation": "./src/cypress-runner",
-        "schema": "./src/schema.json",
-        "description": "Builder for running Cypress in an Angular Architecture."
-      }
-    }
-  }

@@ -3,7 +3,7 @@ import { TestingArchitectHost } from '@angular-devkit/architect/testing/';
 import { schema } from '@angular-devkit/core';
 import { normalize } from 'path';
 import { of, throwError } from 'rxjs';
-import { CypressBuilderOptions } from './cypress-runner';
+import { CypressBuilderOptions } from '.';
 
 const cypress = require('cypress');
 
@@ -35,7 +35,7 @@ describe('Integration Test: Ngx Devkit Cypress Builder', () => {
     
         // This will either take a Node package name, or a path to the directory
         // for the package.json file.
-        const packageJsonPath = normalize(`${__dirname}/..`);
+        const packageJsonPath = normalize(`${__dirname}/../../..`);
         await architectHost.addBuilderFromPackage(packageJsonPath);
 
         cypress.run.mockReset();
