@@ -6,8 +6,7 @@ import {
     scheduleTargetAndForget,
     targetFromTargetString
 } from '@angular-devkit/architect';
-import { Observable, of, noop } from 'rxjs';
-import { fromPromise } from 'rxjs/internal-compatibility';
+import { Observable, of, noop, from } from 'rxjs';
 import { concatMap, map, take, tap, catchError } from 'rxjs/operators';
 
 const cypress = require('cypress');
@@ -42,27 +41,27 @@ function run(
     context: BuilderContext
 ): Observable<BuilderOutput> {
     const isConsoleMode = options.mode === CypressRunningMode.Console;
-    return of(null)
-        .pipe(
-            concatMap(() => 
-              startDevServer(options.devServerTarget, true, context)
-            ),
-            concatMap(({ success }) =>
-              isConsoleMode && !success
-                ? of({ success })
-                : executeCypress(options, context)
-            ),
-            isConsoleMode
-              ? take(1) 
-              : tap(noop),
-            catchError(error => {
-              context.reportStatus(`Error: ${error.message}`);
-              context.logger.error(error.message);
-              return of({
-                success: false
-              });
-            })
-        );
+    
+    return (options.devServerTarget
+        ? startDevServer(options.devServerTarget, true, context)
+        : of({ success: true })
+    ).pipe(
+        concatMap(({ success }) =>
+            isConsoleMode && !success
+            ? of({ success })
+            : executeCypress(options, context)
+        ),
+        isConsoleMode
+            ? take(1) 
+            : tap(noop),
+        catchError(error => {
+            context.reportStatus(`Error: ${error.message}`);
+            context.logger.error(error.message);
+            return of({
+            success: false
+            });
+        })
+    );
 };
 
 function startDevServer(
@@ -100,12 +99,12 @@ function executeCypress(
         ...(options.spec ? { spec: options.spec } : {})
     };
 
-    return fromPromise<any>(
+    return from<any>(
         options.mode === CypressRunningMode.Console
           ? cypress.run(additionalCypressConfig) 
           : cypress.open(additionalCypressConfig)
       ).pipe(
-        map(result => ({
+        map((result:any) => ({
           /**
            * `cypress.open` is returning `0` and is not of the same type as `cypress.run`.
            * `cypress.open` is the graphical UI, so it will be obvious to know what wasn't

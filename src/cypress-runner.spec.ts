@@ -230,4 +230,38 @@ describe('Integration Test: Ngx Devkit Cypress Builder', () => {
         expect(scheduleTargetAndForget).toHaveBeenCalled();
         expect(targetFromTargetString).toHaveBeenCalledWith(devServerTarget);
     });
+
+    it('should not run scheduleTargetAndForget when the devServerOption is not provided', async () => {
+        const testsResult = { totalFailed: 0 };
+        cypress.run.mockReturnValue(Promise.resolve(testsResult));
+        (scheduleTargetAndForget as any) = jest.fn();
+
+        const cypressNewOptions = {
+            mode: 'console',
+            baseUrl: 'http://localhost:80',
+            env: {
+                API_URL: 'http://localhost:8080/api/v1/users'
+            }
+        };
+
+        const run = await architect.scheduleBuilder(
+            'ngx-devkit-cypress-builder:cypress', 
+            cypressNewOptions,
+        );
+        const output = await run.result;
+        await run.stop();
+
+        const {
+            mode,
+            baseUrl,
+            ...expectedCypressOptions
+        } = cypressNewOptions;
+
+        expect(output.success).toBe(true);
+        expect(cypress.run).toHaveBeenCalledWith({ 
+            config: { baseUrl },
+            ...expectedCypressOptions,
+        });
+        expect(scheduleTargetAndForget).not.toHaveBeenCalled();
+    });
 });
