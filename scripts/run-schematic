@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+SANDBOX_PATH="./sandbox"
+SANDBOX_APP_NAME="ng-chile-sample-app"
+PACKAGE_NAME=$(jq -r ".name" < package.json)
+
+if [[ ! -d $SANDBOX_PATH ]]; then 
+    mkdir $SANDBOX_PATH
+    ng new $SANDBOX_APP_NAME --directory $SANDBOX_PATH --routing=true --style=scss
+fi
+
+npm run build
+git HEAD -- sandbox
+npm link && cd ./sandbox && npm link $PACKAGE_NAME
+ng add $PACKAGE_NAME

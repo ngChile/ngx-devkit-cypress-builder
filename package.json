@@ -7,13 +7,14 @@
     "type": "git",
     "url": "https://github.com/ngChile/ngx-devkit-cypress-builder"
   },
-  "main": "src/cypress/index.js",
-  "builders": "src/builders/builders.json",
+  "builders": "./src/builders/builders.json",
+  "schematics": "./src/schematics/collection.json",
   "scripts": {
     "test": "jest --coverage --watch",
     "test:ci": "jest --ci --reporters=default --reporters=jest-junit --coverage",
     "tsc": "tsc",
-    "build": "npm run tsc"
+    "build": "npm run tsc",
+    "run:schematic": "./scripts/run-schematic"
   },
   "jest-junit": {
     "outputDirectory": "./test-results/junit",

@@ -21,4 +21,9 @@ Builder architecture that use a Cypress server for run e2e tests under web appli
 npm install --save-dev ngx-devkit-cypress-builder
 ```
 
-TODO EXPLANATION HOW TO USE
+
+#### Development
+
+- Install jq
+- npm run run:schematic
+
