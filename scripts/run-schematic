@@ -10,6 +10,6 @@ if [[ ! -d $SANDBOX_PATH ]]; then
 fi
 
 npm run build
-git HEAD -- sandbox
+git checkout HEAD -- sandbox
 npm link && cd ./sandbox && npm link $PACKAGE_NAME
 ng add $PACKAGE_NAME
