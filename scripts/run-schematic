@@ -9,7 +9,8 @@ if [[ ! -d $SANDBOX_PATH ]]; then
     ng new $SANDBOX_APP_NAME --directory $SANDBOX_PATH --routing=true --style=scss
 fi
 
+git checkout HEAD -- sandbox && git clean -f -d sandbox
 npm run build
-git checkout HEAD -- sandbox
 npm link && cd ./sandbox && npm link $PACKAGE_NAME
 ng add $PACKAGE_NAME
+git clean -f -d sandbox
