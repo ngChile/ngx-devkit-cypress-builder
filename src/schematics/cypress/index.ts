@@ -1,217 +1,54 @@
-import { Observable, concat, of } from "rxjs";
-import { concatMap, map } from "rxjs/operators";
-
-import { JsonObject, path, resolve, Path } from "@angular-devkit/core";
 import {
     Rule,
     SchematicContext,
-    SchematicsException,
     Tree,
     apply,
     chain,
     mergeWith,
     move,
-    noop,
-    url
+    url,
+    forEach,
+    FileEntry
 } from "@angular-devkit/schematics";
-import { NodePackageInstallTask } from "@angular-devkit/schematics/tasks";
-
-import {
-    NodeDependencyType,
-    addPackageJsonDependency
-} from "../utility/dependencies";
-import {
-    NodePackage,
-    getAngularVersion,
-    getLatestNodeVersion,
-    parseJsonAtPath,
-    removePackageJsonDependency
-} from "../utility/util";
-import { join, normalize } from "path";
 
 export default function (_options: any): Rule {
     return (tree: Tree, _context: SchematicContext) => {
-        _options = { ..._options, __version__: getAngularVersion(tree) };
-
         return chain([
-            readCucumberFile(),
+            removeProtractorFiles(),
+            addCypressCucumberBoilerplate(),
         ])(tree, _context);
     };
 }
 
-function readCucumberFile() {
-    return (tree: Tree, context: SchematicContext): Observable<Tree> => {
-        const targetFolder = './e2e/test';
-        tree.create(
-            normalize(targetFolder),
-            `content`
-        );
-
-        return of(tree);
-    }
+function removeProtractorFiles(): Rule {
+    return (tree: Tree, context: SchematicContext) => {
+        context.logger.debug("Clean protractor files");
+        tree.delete("./e2e");
+        return tree;
+    };
 }
 
-// function updateDependencies(options: any): Rule {
-//     return (tree: Tree, context: SchematicContext): Observable<Tree> => {
-//         context.logger.debug("Updating dependencies...");
-//         context.addTask(new NodePackageInstallTask());
+function addCypressCucumberBoilerplate(): Rule {
+    return (tree: Tree, context: SchematicContext) => {
+        const sourceFolder = './files';
+        const targetFolder = './e2e';
 
-//         const removeDependencies = of("protractor")
-//             .pipe(
-//                 map((packageName: string) => {
-//                     context.logger.debug(`Removing ${packageName} dependency`);
+        context.logger.debug('Adding Cypress and Cucumber files');
 
-//                     removePackageJsonDependency(tree, {
-//                         type: NodeDependencyType.Dev,
-//                         name: packageName
-//                     });
-
-//                     return tree;
-//                 })
-//             );
-//         const addDependencies = of(
-//             "cypress",
-//             "@cypress/webpack-preprocessor",
-//             "ts-loader"
-//         ).pipe(
-//             concatMap((packageName: string) => getLatestNodeVersion(packageName)),
-//             map((packageFromRegistry: NodePackage) => {
-//                 const { name, version } = packageFromRegistry;
-//                 context.logger.debug(
-//                     `Adding ${name}:${version} to ${NodeDependencyType.Dev}`
-//                 );
-
-//                 addPackageJsonDependency(tree, {
-//                     type: NodeDependencyType.Dev,
-//                     name,
-//                     version
-//                 });
-
-//                 return tree;
-//             })
-//         );
-
-//         return concat(removeDependencies, addDependencies);
-//     };
-// }
-
-// function removeFiles(options: any): Rule {
-//     return (tree: Tree, context: SchematicContext) => {
-//         context.logger.debug("Removing e2e directory");
-//         tree.delete("./e2e");
-
-//         if (tree.exists("./angular.json")) {
-//             const angularJsonVal = getAngularJsonValue(tree);
-//             const project = getProject(options, angularJsonVal);
-//             context.logger.debug(
-//                 `Removing ${project}-e2e from angular.json projects`
-//             );
-
-//             delete angularJsonVal.projects[`${project}-e2e`];
-
-//             return tree.overwrite(
-//                 "./angular.json",
-//                 JSON.stringify(angularJsonVal, null, 2)
-//             );
-//         }
-//         return tree;
-//     };
-// }
-
-// function addCypressFiles(): Rule {
-//     return (tree: Tree, context: SchematicContext) => {
-//         context.logger.debug("Adding cypress files");
-
-//         return chain([
-//             mergeWith(
-//                 apply(url("./files"), [move("./")])
-//             )
-//         ])(tree, context);
-//     };
-// }
-
-// function addNewCypressCommands(
-//     tree: Tree,
-//     angularJsonVal: any,
-//     project: string,
-//     runJson: JsonObject,
-//     openJson: JsonObject,
-//     removeProtractor: boolean
-// ) {
-//     const projectArchitectJson = angularJsonVal["projects"][project]["architect"];
-
-//     projectArchitectJson["cypress-run"] = runJson;
-//     projectArchitectJson["cypress-open"] = openJson;
-//     projectArchitectJson["e2e"] = openJson;
-
-
-//     return tree.overwrite(
-//         "./angular.json",
-//         JSON.stringify(angularJsonVal, null, 2)
-//     );
-// }
-
-// function getAngularJsonValue(tree: Tree) {
-//     const angularJsonAst = parseJsonAtPath(tree, "./angular.json");
-//     return angularJsonAst.value as any;
-// }
-
-// function getProject(options: any, angularJsonValue: any) {
-//     return options.project || angularJsonValue.defaultProject;
-// }
-
-// function modifyAngularJson(options: any): Rule {
-//     return (tree: Tree, context: SchematicContext) => {
-//         if (tree.exists("./angular.json")) {
-//             const angularJsonVal = getAngularJsonValue(tree);
-//             const project = getProject(options, angularJsonVal);
-
-//             const cypressRunJson = {
-//                 builder: "@briebug/cypress-schematic:cypress",
-//                 options: {
-//                     devServerTarget: `${project}:serve`
-//                 },
-//                 configurations: {
-//                     production: {
-//                         devServerTarget: `${project}:serve:production`
-//                     }
-//                 }
-//             };
-
-//             const cypressOpenJson = {
-//                 builder: "@briebug/cypress-schematic:cypress",
-//                 options: {
-//                     devServerTarget: `${project}:serve`,
-//                     watch: true,
-//                     headless: false
-//                 },
-//                 configurations: {
-//                     production: {
-//                         devServerTarget: `${project}:serve:production`
-//                     }
-//                 }
-//             };
-
-//             context.logger.debug(
-//                 `Adding cypress-run and cypress-open commands in angular.json`
-//             );
-
-//             context.logger.debug(
-//                 `Replacing e2e command with cypress-run in angular.json`
-//             );
-
-//             addNewCypressCommands(
-//                 tree,
-//                 angularJsonVal,
-//                 project,
-//                 cypressRunJson,
-//                 cypressOpenJson,
-//                 options.removeProtractor
-//             );
-//         } else {
-//             throw new SchematicsException("angular.json not found");
-//         }
-
-//         return tree;
-//     };
-// }
+        const rules = [
+            move(targetFolder),
+            // fix for https://github.com/angular/angular-cli/issues/11337
+            forEach((fileEntry: FileEntry) => {
+                if (tree.exists(fileEntry.path)) {
+                  tree.overwrite(fileEntry.path, fileEntry.content);
+                }
+                return fileEntry;
+            }),
+        ];
+        const sourceUrl = url(sourceFolder);
+        const rule = chain([
+            mergeWith(apply(sourceUrl, rules))
+        ]);
+        return rule(tree, context);
+    }
+}
