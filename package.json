@@ -22,14 +22,15 @@
   },
   "dependencies": {
     "@angular-devkit/architect": "^0.803.14",
-    "@angular-devkit/core": "^8.3.14",
-    "@angular-devkit/schematics": "^8.3.14",
+    "@angular-devkit/core": "^8.3.20",
+    "@angular-devkit/schematics": "^8.3.20",
     "cypress": "^3.5.0"
   },
   "peerDependencies": {
     "rxjs": "^6.0.0"
   },
   "devDependencies": {
+    "@schematics/angular": "^8.3.20",
     "@types/jest": "^24.0.23",
     "@types/node": "^12.12.14",
     "cpr": "^3.0.1",
