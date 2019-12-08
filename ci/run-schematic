@@ -15,4 +15,8 @@ npm link && cd ./sandbox && npm link $PACKAGE_NAME
 ng add $PACKAGE_NAME
 
 # test suite using cypress cucumber preprocessor and example files
-git clean -f -d sandbox
+npm install -D cypress-cucumber-preprocessor @cypress/webpack-preprocessor ts-loader
+
+ng e2e --mode console #npm run e2e:ci
+
+cd .. && git checkout HEAD -- sandbox  && git clean -f -d sandbox

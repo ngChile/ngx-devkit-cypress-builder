@@ -31,11 +31,14 @@ describe('my-component', () => {
 
         const e2eFiles = tree.files.filter(fileName => fileName.includes('e2e/'))
         expect(e2eFiles).toEqual([
+            `/${projectName}/e2e/cypress.json`,
             `/${projectName}/e2e/tsconfig.json`,
             `/${projectName}/e2e/features/home.feature`,
             `/${projectName}/e2e/plugins/index.js`,
             `/${projectName}/e2e/plugins/webpack.config.js`,
-            `/${projectName}/e2e/step_definitions/home_steps.ts`
+            `/${projectName}/e2e/step_definitions/home_steps.ts`,
+            `/${projectName}/e2e/support/commands.ts`,
+            `/${projectName}/e2e/support/index.ts`
         ]);
     });
 });

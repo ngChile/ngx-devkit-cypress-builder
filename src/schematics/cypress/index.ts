@@ -18,6 +18,7 @@ export default function (options: any): Rule {
         return chain([
             removeProtractorFiles(),
             addCypressCucumberBoilerplate(),
+            addCypressCucumberBuilder(),
         ])(tree, context);
     };
 }
@@ -67,4 +68,42 @@ function addCypressCucumberBoilerplate(): Rule {
         ]);
         return rule(tree, context);
     }
+}
+
+function addCypressCucumberBuilder(): Rule {
+    return (tree: Tree, context: SchematicContext) => {
+        const workspace = getWorkspace(tree);
+        const projectName = Object.keys(workspace['projects'])[0];
+        const projectArchitectJson = workspace['projects'][projectName]['architect'];
+
+        const cypressOpenJson = {
+            builder: 'ngx-devkit-cypress-builder:cypress',
+            options: {
+                devServerTarget: `${projectName}:serve`,
+                mode: 'browser',
+                configFile: normalize(
+                    `${workspace['projects'][projectName]['root']}./e2e/cypress.json`
+                )
+            },
+            configurations: {
+                production: {
+                    devServerTarget: `${projectName}:serve:production`
+                }
+            }
+        };
+
+        projectArchitectJson['e2e'] = cypressOpenJson as any;
+
+        tree.overwrite(
+            normalize(`${workspace['projects'][projectName]['root']}/angular.json`),
+            JSON.stringify(workspace, null, 2)
+        );
+
+        // add "cypress-cucumber-preprocessor": {
+        //     "step_definitions": "./e2e/support/step_definitions"
+        // }, on package.json
+        // and modify default e2e script adding e2e and e2e:ci tasks
+
+        return tree;
+    };
 }

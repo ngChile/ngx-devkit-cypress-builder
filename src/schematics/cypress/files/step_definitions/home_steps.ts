@@ -7,7 +7,12 @@ Given('the user visit the main page', () => {
 
 Then('page should have the right title', () => {
     cy.getPackageName()
-      .then(packageName => 
-        cy.title().should('contains', `${packageName.name}`)
-      );
+        .then((packageName: any ) => {
+            // Angular converts a dashed-name on package.json to Capitalize and Camel case
+            // format for the title
+            const pageTitle = packageName
+                .replace(/-([a-z])/g, (match: any, character: string) => character.toUpperCase())
+                .replace(/^([a-z])/g, (match: any, character: string) => character.toUpperCase());
+            cy.title().should('contains', pageTitle);
+        });
 });
