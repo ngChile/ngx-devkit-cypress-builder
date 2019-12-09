@@ -10,12 +10,10 @@ if [[ ! -d $SANDBOX_PATH ]]; then
 fi
 
 git checkout HEAD -- sandbox && git clean -f -d sandbox
+
 npm run build
 npm link && cd ./sandbox && npm link $PACKAGE_NAME
 ng add $PACKAGE_NAME
-
-# test suite using cypress cucumber preprocessor and example files
-npm install -D cypress-cucumber-preprocessor @cypress/webpack-preprocessor ts-loader
 
 npm run e2e:ci
 

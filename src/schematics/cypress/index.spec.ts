@@ -61,5 +61,14 @@ describe('my-component', () => {
             'step_definitions': './e2e/step_definitions'
         });
         expect(packageJson['scripts']['e2e:ci']).toEqual('ng e2e --mode console');
+        expect(Object.keys(packageJson['devDependencies'])).toEqual(
+            expect.arrayContaining([
+                'cypress-cucumber-preprocessor',
+                '@cypress/webpack-preprocessor',
+                'ts-loader'
+            ])
+        );
+        // TODO: Add task for remove "protractor" dev dependency
+        // expect(Object.keys(packageJson['devDependencies'])).not.toContain('protractor');
     });
 });

@@ -9,13 +9,21 @@ import {
     url,
     MergeStrategy,
 } from '@angular-devkit/schematics';
+import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { getWorkspace } from '@schematics/angular/utility/config';
+import { addPackageJsonDependency, NodeDependency, NodeDependencyType } from '@schematics/angular/utility/dependencies';
+
 import { join, normalize } from 'path';
+import { Observable, of } from 'rxjs';
+
+import { getLatestNodeVersion, NpmRegistryPackage } from './utils/npmjs';
+import { concatMap, map, tap } from 'rxjs/operators';
 
 export default function (options: any): Rule {
     return (tree: Tree, context: SchematicContext) => {
         return chain([
             removeProtractorFiles(),
+            addCypressCucumberDependencies(),
             addCypressCucumberBoilerplate(),
             addCypressBuilder(),
             addCypressCucumberCosmiconfig(),
@@ -39,6 +47,33 @@ function removeProtractorFiles(): Rule {
             tree.delete(file);
         });
         return tree;
+    };
+}
+
+function addCypressCucumberDependencies(): Rule {
+    return (tree: Tree, context: SchematicContext): Observable<Tree> => {
+        return of(
+            'cypress-cucumber-preprocessor',
+            '@cypress/webpack-preprocessor',
+            'ts-loader'
+        ).pipe(
+            concatMap(name => getLatestNodeVersion(name)),
+            map((npmRegistryPackage: NpmRegistryPackage) => {
+              const nodeDependency: NodeDependency = {
+                type: NodeDependencyType.Dev,
+                name: npmRegistryPackage.name,
+                version: npmRegistryPackage.version,
+                overwrite: false
+              };
+              addPackageJsonDependency(tree, nodeDependency);
+              context.logger.info(`✅️  Added ${npmRegistryPackage.name} dependency`);
+              return tree;
+            }),
+            tap(() => {
+                context.addTask(new NodePackageInstallTask());
+                context.logger.debug('✅️ All dependencies installed');
+            })
+        );
     };
 }
 
