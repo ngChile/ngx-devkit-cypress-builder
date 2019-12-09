@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 
 SANDBOX_PATH="./sandbox"
 SANDBOX_APP_NAME="ng-chile-sample-app"
@@ -13,7 +15,8 @@ git checkout HEAD -- sandbox && git clean -f -d sandbox
 
 npm run build
 npm link && cd ./sandbox && npm link $PACKAGE_NAME
-ng add $PACKAGE_NAME
+npm install
+node_modules/.bin/ng add $PACKAGE_NAME
 
 npm run e2e:ci
 
