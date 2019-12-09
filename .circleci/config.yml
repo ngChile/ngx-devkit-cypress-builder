@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   codecov: codecov/codecov@1.0.5
+  jq: circleci/jq@1.9.0
 aliases:
   restore_cache: &restore_cache
     restore_cache:
@@ -22,7 +23,7 @@ aliases:
       paths:
         - ./
       key: v1-dist-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
-  
+
   restore_dist: &restore_dist
     restore_cache:
       name: Restore built dist folder
@@ -61,7 +62,21 @@ jobs:
           path: ./coverage
       - store_test_results:
           path: ./test-results
-
+  e2e:
+    docker:
+      - image: cypress/base:10
+        environment:
+          TERM: xterm
+    working_directory: ~/lib
+    steps:
+      - checkout
+      - <<: *show_current_branch
+      - <<: *restore_cache
+      - <<: *install_node_modules
+      - <<: *save_cache
+      - run:
+          name: Running e2e test running schematic on sandbox app
+          command: bash ./ci/run-schematic
   build:
     docker:
       - image: circleci/node:10
@@ -76,7 +91,6 @@ jobs:
           name: Building artifact using ng build
           command: npm run build
       - <<: *store_dist
-  
   publish:
     docker:
       - image: circleci/node:10
@@ -97,9 +111,11 @@ workflows:
   angular-chile-pipeline:
     jobs:
       - unit-tests
+      - e2e
       - build:
           requires:
             - unit-tests
+            - e2e
           filters:
             branches:
               only:
