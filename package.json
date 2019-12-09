@@ -13,8 +13,7 @@
     "test": "jest --coverage --watch",
     "test:ci": "jest --ci --reporters=default --reporters=jest-junit --coverage",
     "tsc": "tsc",
-    "build": "npm run tsc",
-    "run:schematic": "./scripts/run-schematic"
+    "build": "npm run tsc"
   },
   "jest-junit": {
     "outputDirectory": "./test-results/junit",

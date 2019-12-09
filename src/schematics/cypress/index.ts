@@ -7,18 +7,18 @@ import {
     mergeWith,
     move,
     url,
-    forEach,
-    FileEntry,
+    MergeStrategy,
 } from '@angular-devkit/schematics';
 import { getWorkspace } from '@schematics/angular/utility/config';
-import { normalize } from '@angular-devkit/core';
+import { join, normalize } from 'path';
 
 export default function (options: any): Rule {
     return (tree: Tree, context: SchematicContext) => {
         return chain([
             removeProtractorFiles(),
             addCypressCucumberBoilerplate(),
-            addCypressCucumberBuilder(),
+            addCypressBuilder(),
+            addCypressCucumberCosmiconfig(),
         ])(tree, context);
     };
 }
@@ -30,8 +30,9 @@ function removeProtractorFiles(): Rule {
 
         context.logger.debug('Clean protractor files if exists');
 
-        const targetFolder = normalize(
-            `${workspace['projects'][projectName]['root']}/e2e`
+        const targetFolder = join(
+            normalize(workspace['projects'][projectName]['root']),
+            '/e2e'
         );
 
         tree.getDir(targetFolder).visit(file => {
@@ -46,44 +47,39 @@ function addCypressCucumberBoilerplate(): Rule {
         const workspace = getWorkspace(tree);
         const projectName = Object.keys(workspace['projects'])[0];
         const sourceFolder = './files';
-        const targetFolder = normalize(
-            `${workspace['projects'][projectName]['root']}/e2e`
+        const targetFolder = join(
+            normalize(workspace['projects'][projectName]['root']),
+            '/e2e'
         );
 
         context.logger.debug('Adding Cypress and Cucumber files');
 
         const rules = [
             move(targetFolder),
-            //  fix for https://github.com/angular/angular-cli/issues/11337
-            forEach((fileEntry: FileEntry) => {
-                if (tree.exists(fileEntry.path)) {
-                    tree.overwrite(fileEntry.path, fileEntry.content);
-                }
-                return fileEntry;
-            }),
         ];
         const sourceUrl = url(sourceFolder);
         const rule = chain([
-            mergeWith(apply(sourceUrl, rules))
+            mergeWith(apply(sourceUrl, rules), MergeStrategy.Overwrite)
         ]);
         return rule(tree, context);
     }
 }
 
-function addCypressCucumberBuilder(): Rule {
+function addCypressBuilder(): Rule {
     return (tree: Tree, context: SchematicContext) => {
         const workspace = getWorkspace(tree);
         const projectName = Object.keys(workspace['projects'])[0];
         const projectArchitectJson = workspace['projects'][projectName]['architect'];
-
+        const configFile = join(
+            normalize(workspace['projects'][projectName]['root']),
+            'e2e/cypress.json'
+        );
         const cypressOpenJson = {
             builder: 'ngx-devkit-cypress-builder:cypress',
             options: {
                 devServerTarget: `${projectName}:serve`,
                 mode: 'browser',
-                configFile: normalize(
-                    `${workspace['projects'][projectName]['root']}./e2e/cypress.json`
-                )
+                configFile
             },
             configurations: {
                 production: {
@@ -95,15 +91,27 @@ function addCypressCucumberBuilder(): Rule {
         projectArchitectJson['e2e'] = cypressOpenJson as any;
 
         tree.overwrite(
-            normalize(`${workspace['projects'][projectName]['root']}/angular.json`),
+            './angular.json',
             JSON.stringify(workspace, null, 2)
         );
-
-        // add "cypress-cucumber-preprocessor": {
-        //     "step_definitions": "./e2e/support/step_definitions"
-        // }, on package.json
-        // and modify default e2e script adding e2e and e2e:ci tasks
-
         return tree;
+    };
+}
+
+function addCypressCucumberCosmiconfig(): Rule {
+    return (tree: Tree, context: SchematicContext) => {
+        const packageJson = JSON.parse(
+            tree.read('./package.json').toString('utf-8')
+        );
+        packageJson['cypress-cucumber-preprocessor'] = {
+            'step_definitions': './e2e/step_definitions'
+        };
+        packageJson['scripts']['e2e:ci'] = 'ng e2e --mode console';
+
+        tree.overwrite(
+            './package.json',
+            JSON.stringify(packageJson, null, 2)
+        );
+        return tree
     };
 }
