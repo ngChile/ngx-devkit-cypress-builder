@@ -13,7 +13,9 @@
     "test": "jest --coverage --watch",
     "test:ci": "jest --ci --reporters=default --reporters=jest-junit --coverage",
     "tsc": "tsc",
-    "build": "npm run tsc"
+    "build": "npm run tsc",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "jest-junit": {
     "outputDirectory": "./test-results/junit",
@@ -23,7 +25,8 @@
     "@angular-devkit/architect": "^0.803.14",
     "@angular-devkit/core": "^8.3.14",
     "@angular-devkit/schematics": "^8.3.14",
-    "cypress": "^3.5.0"
+    "cypress": "^3.5.0",
+    "snyk": "^1.316.1"
   },
   "peerDependencies": {
     "rxjs": "^6.0.0"
@@ -36,5 +39,6 @@
     "jest-junit": "^8.0.0",
     "ts-jest": "^24.2.0",
     "typescript": ">=3.4.0 <3.6.0"
-  }
+  },
+  "snyk": true
 }
